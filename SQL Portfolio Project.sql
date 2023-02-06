@@ -1,6 +1,8 @@
---Select *
---From PortfolioProject..CovidDeaths
---Order by 3,4
+Select location
+From PortfolioProject..CovidDeaths
+Where continent is null and location not like '%income%' and location not like 'international'
+Group by location
+order by 1
 
 --Select *
 --From PortfolioProject..CovidVaccinations
@@ -48,7 +50,7 @@ Order by TotalDeaths desc
 --Group by continent
 Select location, MAX(cast(total_deaths as int)) as "Total Deaths"
 From PortfolioProject..CovidDeaths
-Where continent is null
+Where continent is null  and location not like '%income%' and location not like 'international'
 Group by location
 Order by "Total Deaths" desc
 
@@ -120,3 +122,44 @@ Where dea.continent is not null
 
 Select * 
 from PercentPopulationVaccinated
+
+
+-- View for infection  rate of each country
+Create View Infectionbycountry as 
+Select location, MAX(total_cases) as HighestInfectionCount, MAX((total_cases/population)*100 )as InfectionPercentage
+From PortfolioProject..CovidDeaths
+Where continent is not null
+Group by location, population
+
+Select * 
+from Infectionbycountry
+Order by InfectionPercentage desc
+
+--view for death per continent
+Create view deathbycontinent as
+Select location, MAX(cast(total_deaths as int)) as "Total Deaths"
+From PortfolioProject..CovidDeaths
+Where continent is null  
+and location not like '%income%' 
+and location not like 'international'
+Group by location
+
+Select *
+From deathbycontinent;
+
+Drop View deathbycontinent;
+
+--view for death percentage per country
+Create view deathpercentagebycountry as 
+Select location, MAX(cast(total_deaths as int))/population*100 as DeathPercentage
+From PortfolioProject..CovidDeaths
+Where continent is not null
+Group by location, population
+
+Drop View deathpercentagebycountry;
+
+Select *
+from deathpercentagebycountry
+Order by DeathPercentage desc;
+
+
